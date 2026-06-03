@@ -71,6 +71,9 @@ python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 | `math` | [kuotient/orca-math-word-problems-193k-korean](https://huggingface.co/datasets/kuotient/orca-math-word-problems-193k-korean) | **193k** | CC-BY-SA-4.0 | 6 · 수학 단계 풀이 |
 | `empathy` | [jojo0217/korean_safe_conversation](https://huggingface.co/datasets/jojo0217/korean_safe_conversation) | 27k | **Apache-2.0** | 11·12·15 · 정서지원 |
 | `edu` | [neuralfoundry-coder/aihub-korean-education-instruct-sample](https://huggingface.co/datasets/neuralfoundry-coder/aihub-korean-education-instruct-sample) | 6k | CC-BY-NC-SA-4.0 | 2·16·17 · 교육 상담·분석 |
+| `roleplay` | [huggingface-KREW/korean-role-playing](https://huggingface.co/datasets/huggingface-KREW/korean-role-playing) | 32k | **Apache-2.0** | 9 · 인물 롤플레잉 |
+| `translation` | [bawin/korean-english-translation-1k](https://huggingface.co/datasets/bawin/korean-english-translation-1k) | 1k | 확인필요 | 19 · 번역 |
+| `reasoning` | [SabaPivot/KMMLU-Summarized-Chain_of_Thought](https://huggingface.co/datasets/SabaPivot/KMMLU-Summarized-Chain_of_Thought) | 7k | 확인필요 | 3 · 단계적 추론 |
 
 > ⚠️ **라이선스**: 상업적 사용 시 `empathy`(Apache-2.0)가 가장 자유롭습니다. KoAlpaca/AI Hub 계열은
 > 비상업(NC) 조건이 있을 수 있으니 배포 전 각 데이터셋 카드를 확인하세요. 연구·교육 목적 파인튜닝엔 무방합니다.
@@ -82,9 +85,14 @@ python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 - `instruction` → 시스템 프롬프트(시나리오 유형 명시) → 모델이 상황을 **구별**하는 핵심
 - `input` → 학생/사용자 발화 · `output` → 학습할 이상적 답변
 
-### 아직 실제 데이터가 부족한 시나리오 (3·4·5·8·9·10·13·14·18·19·20)
-HF에 직결 데이터가 적은 시나리오입니다. `seed_train.jsonl`의 예시를 **few-shot 프롬프트**로 활용하거나,
-추후 합성 데이터 생성(LLM)으로 보강하세요. (다음 단계 후보)
+### 커버리지 현황 (HF 검색 기반 — 합성 데이터 미사용)
+- **데이터셋으로 커버됨**: 0 · 1 · 2 · 3 · 6 · 9 · 11 · 12 · 15 · 16 · 17 · 19
+- **아직 실제 HF 데이터 미확보**: 4(난이도조절) · 5(개념연결) · 8(코딩디버깅) · 10(과학실험안전) · 13(게이미피케이션) · 14(목표설정) · 18(학부모 문체변환) · 20(수업지도안)
+  - 한국어 직결 공개 데이터셋이 없는 영역입니다. 현재는 `seed_train.jsonl`의 예시를 **few-shot 프롬프트**로만 활용하세요.
+
+#### 참고 데이터셋 (학습 레지스트리 미포함)
+- [HAERAE-HUB/KMMLU](https://huggingface.co/datasets/HAERAE-HUB/KMMLU) (17k⬇) — 한국어 시험 평가 벤치마크. **CC-BY-ND**(파생 금지)라 학습엔 부적합, **평가 전용**으로 사용.
+- [ewhk9887/korean_code_review](https://huggingface.co/datasets/ewhk9887/korean_code_review) — 시나리오 8 후보지만 47행·GPL-3.0으로 소규모.
 
 ---
 

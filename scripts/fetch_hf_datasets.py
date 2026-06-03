@@ -65,6 +65,33 @@ SOURCES = {
         "license": "CC-BY-NC-SA-4.0", "rows": 6000,
         "note": "시나리오 2/16/17(교육 상담·분석) — AI Hub 기반 conversations 포맷",
     },
+    # ── 공백 시나리오를 '검색'으로 보강한 실제 데이터셋 (합성 아님) ──────────
+    "roleplay": {
+        "hf_id": "huggingface-KREW/korean-role-playing",
+        "config": "general-roleplay-data", "split": "train",
+        "scenario_id": 9,
+        "instruction": "시나리오[9]: 지정된 인물/캐릭터의 어조와 상황·가치관을 반영해 1인칭으로 답변하세요.",
+        "map": lambda r: _from_roleplay(r.get("text")),
+        "license": "Apache-2.0", "rows": 32367,
+        "note": "시나리오 9(역사/인물 롤플레잉) — text=대화 리스트(JSON)",
+    },
+    "translation": {
+        "hf_id": "bawin/korean-english-translation-1k", "split": "train",
+        "scenario_id": 19,
+        "instruction": "시나리오[19]: 한국어 문장을 자연스러운 영어로 번역하세요.",
+        "map": lambda r: (r.get("korean", ""), r.get("english", "")),
+        "license": "확인필요", "rows": 1000,
+        "note": "시나리오 19(번역) — korean/english",
+    },
+    "reasoning": {
+        "hf_id": "SabaPivot/KMMLU-Summarized-Chain_of_Thought",
+        "config": "Agricultural-Sciences", "split": "train",
+        "scenario_id": 3,
+        "instruction": "시나리오[3]: 문제를 풀 때 사고 과정을 단계적으로 보여주고 정답을 제시하세요.",
+        "map": lambda r: _from_kmmlu_cot(r),
+        "license": "확인필요", "rows": 6962,
+        "note": "시나리오 3(메타인지/단계적 추론) — KMMLU chain_of_thought (빈 CoT 자동 제외)",
+    },
 }
 
 
@@ -75,13 +102,49 @@ def _from_conversations(convo):
     return user, asst
 
 
+def _from_roleplay(text):
+    """korean-role-playing 의 text 필드(대화 리스트 또는 그 JSON 문자열) → (user, assistant)."""
+    convo = text
+    if isinstance(text, str):
+        try:
+            convo = json.loads(text)
+        except Exception:
+            return "", text  # 파싱 불가 시 완성형으로
+    if isinstance(convo, list):
+        return _from_conversations(convo)
+    return "", ""
+
+
+_KMMLU_LETTERS = {1: "A", 2: "B", 3: "C", 4: "D"}
+
+
+def _from_kmmlu_cot(r):
+    """KMMLU-CoT → (문제+보기, 사고과정+정답). chain_of_thought 비면 ('','')→자동 제외."""
+    cot = (r.get("chain_of_thought") or "").strip()
+    if not cot:
+        return "", ""
+    q = (r.get("question") or "").strip()
+    choices = "\n".join(f"{L}) {r.get(L, '')}" for L in ("A", "B", "C", "D"))
+    ans = r.get("answer")
+    letter = _KMMLU_LETTERS.get(ans, str(ans))
+    inp = f"{q}\n{choices}"
+    outp = f"{cot}\n\n정답: {letter}"
+    return inp, outp
+
+
 def fetch_one(key, cfg, per_source, seed):
     from datasets import load_dataset
     print(f"\n▶ [{key}] {cfg['hf_id']} (목표 {per_source}개, license={cfg['license']})")
     out = []
     try:
-        ds = load_dataset(cfg["hf_id"], split=cfg["split"], streaming=True)
-        ds = ds.shuffle(seed=seed, buffer_size=10000)
+        load_kw = {"split": cfg["split"], "streaming": True}
+        if cfg.get("config"):
+            load_kw["name"] = cfg["config"]
+        ds = load_dataset(cfg["hf_id"], **load_kw)
+        # streaming shuffle 은 첫 행 전에 buffer 를 모두 채우므로(=대량 선다운로드)
+        # 샘플 수에 비례한 작은 버퍼만 사용해 소량 추출도 빠르게.
+        buf = max(1000, min(10000, per_source * 2))
+        ds = ds.shuffle(seed=seed, buffer_size=buf)
         for row in ds:
             inp, outp = cfg["map"](row)
             inp = (inp or "").strip()
