@@ -75,6 +75,17 @@ python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 | `translation` | [bawin/korean-english-translation-1k](https://huggingface.co/datasets/bawin/korean-english-translation-1k) | 1k | 확인필요 | 19 · 번역 |
 | `reasoning` | [SabaPivot/KMMLU-Summarized-Chain_of_Thought](https://huggingface.co/datasets/SabaPivot/KMMLU-Summarized-Chain_of_Thought) | 7k | 확인필요 | 3 · 단계적 추론 |
 
+### 영어 데이터셋 (cross-lingual 행동 학습 · `lang=en`)
+한국어 직결 데이터가 없는 시나리오를 영어 공개 데이터로 보강합니다. 모델(Qwen2.5)은 다국어이므로
+**행동/형식**을 학습하는 데 유효합니다. 단, 출력까지 한국어로 만들려면 비중을 낮추거나 번역 전처리를 권장합니다.
+
+| 소스 키 | HF 데이터셋 | 행수 | 라이선스 | 매핑 시나리오 |
+|---------|-------------|------|----------|---------------|
+| `debug_en` | [taisazero/socratic-debugging-benchmark](https://huggingface.co/datasets/taisazero/socratic-debugging-benchmark) | 1k | **MIT** | 8 · 소크라테스 디버깅 |
+| `science_en` | [allenai/sciq](https://huggingface.co/datasets/allenai/sciq) | 14k | CC-BY-NC-3.0 | 10 · 과학 교육 |
+| `lesson_en` | [xriminact/brightai_edge_lesson_plan_dataset](https://huggingface.co/datasets/xriminact/brightai_edge_lesson_plan_dataset) | 4k | 확인필요 | 20 · 수업 지도안 |
+| `motivation_en` | [to-be/annomi-motivational-interviewing-therapy-conversations](https://huggingface.co/datasets/to-be/annomi-motivational-interviewing-therapy-conversations) | 133 | OpenRAIL | 14 · 동기/목표 |
+
 > ⚠️ **라이선스**: 상업적 사용 시 `empathy`(Apache-2.0)가 가장 자유롭습니다. KoAlpaca/AI Hub 계열은
 > 비상업(NC) 조건이 있을 수 있으니 배포 전 각 데이터셋 카드를 확인하세요. 연구·교육 목적 파인튜닝엔 무방합니다.
 
@@ -86,13 +97,16 @@ python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 - `input` → 학생/사용자 발화 · `output` → 학습할 이상적 답변
 
 ### 커버리지 현황 (HF 검색 기반 — 합성 데이터 미사용)
-- **데이터셋으로 커버됨**: 0 · 1 · 2 · 3 · 6 · 9 · 11 · 12 · 15 · 16 · 17 · 19
-- **아직 실제 HF 데이터 미확보**: 4(난이도조절) · 5(개념연결) · 8(코딩디버깅) · 10(과학실험안전) · 13(게이미피케이션) · 14(목표설정) · 18(학부모 문체변환) · 20(수업지도안)
-  - 한국어 직결 공개 데이터셋이 없는 영역입니다. 현재는 `seed_train.jsonl`의 예시를 **few-shot 프롬프트**로만 활용하세요.
+- **커버됨 (한국어)**: 0 · 1 · 2 · 3 · 6 · 9 · 11 · 12 · 15 · 16 · 17 · 19
+- **커버됨 (영어 보강)**: 8 · 10 · 14 · 20
+- **여전히 미확보**: 4(난이도조절) · 5(개념연결) · 13(게이미피케이션) · 18(학부모 문체변환)
+  - 한/영 모두 직결 공개 데이터셋이 검색되지 않는 영역입니다. `seed_train.jsonl` 예시를 **few-shot 프롬프트**로만 활용하세요.
 
 #### 참고 데이터셋 (학습 레지스트리 미포함)
-- [HAERAE-HUB/KMMLU](https://huggingface.co/datasets/HAERAE-HUB/KMMLU) (17k⬇) — 한국어 시험 평가 벤치마크. **CC-BY-ND**(파생 금지)라 학습엔 부적합, **평가 전용**으로 사용.
-- [ewhk9887/korean_code_review](https://huggingface.co/datasets/ewhk9887/korean_code_review) — 시나리오 8 후보지만 47행·GPL-3.0으로 소규모.
+- [Eedi/Question-Anchored-Tutoring-Dialogues-2k](https://huggingface.co/datasets/Eedi/Question-Anchored-Tutoring-Dialogues-2k) (69k, CC-BY-NC-4.0) — 시나리오 4(적응형 튜터링) 후보. 턴 단위 행이라 InterventionId로 학생→교사 턴 페어링 전처리 필요(미연동).
+- [HAERAE-HUB/KMMLU](https://huggingface.co/datasets/HAERAE-HUB/KMMLU) (17k⬇) — 한국어 시험 평가 벤치마크. **CC-BY-ND**(파생 금지)라 학습 부적합, **평가 전용**.
+- [m-a-p/CodeFeedback-Filtered-Instruction](https://huggingface.co/datasets/m-a-p/CodeFeedback-Filtered-Instruction) (15k⬇) — 시나리오 8 대규모 영어 코드 피드백(힌트형 아님, 보강용).
+- [ewhk9887/korean_code_review](https://huggingface.co/datasets/ewhk9887/korean_code_review) — 시나리오 8 한국어 후보지만 47행·GPL-3.0으로 소규모.
 
 ---
 

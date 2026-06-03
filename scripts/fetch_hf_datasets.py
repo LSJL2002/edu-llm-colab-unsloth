@@ -89,8 +89,42 @@ SOURCES = {
         "scenario_id": 3,
         "instruction": "시나리오[3]: 문제를 풀 때 사고 과정을 단계적으로 보여주고 정답을 제시하세요.",
         "map": lambda r: _from_kmmlu_cot(r),
-        "license": "확인필요", "rows": 6962,
+        "license": "확인필요", "rows": 6962, "lang": "ko",
         "note": "시나리오 3(메타인지/단계적 추론) — KMMLU chain_of_thought (빈 CoT 자동 제외)",
+    },
+    # ── 영어 데이터셋으로 보강 (cross-lingual 행동 학습; 출력 한국어화는 README 참고) ──
+    "debug_en": {
+        "hf_id": "taisazero/socratic-debugging-benchmark", "split": "train",
+        "scenario_id": 8,
+        "instruction": "시나리오[8]: 정답 코드를 주지 말고 소크라테스식 질문/힌트로 디버깅을 유도하세요.",
+        "map": lambda r: (r.get("lm_input", ""), r.get("lm_target", "")),
+        "license": "MIT", "rows": 993, "lang": "en",
+        "note": "시나리오 8(코딩 디버깅 힌트형) — lm_input/lm_target, 소크라테스 디버깅",
+    },
+    "science_en": {
+        "hf_id": "allenai/sciq", "split": "train",
+        "scenario_id": 10,
+        "instruction": "시나리오[10]: 과학 개념을 근거와 함께 설명하고 정답을 제시하세요.",
+        "map": lambda r: (r.get("question", ""),
+                          (r.get("support", "") + f"\n\nAnswer: {r.get('correct_answer','')}").strip()),
+        "license": "CC-BY-NC-3.0", "rows": 13679, "lang": "en",
+        "note": "시나리오 10(과학 교육) — question/support/correct_answer",
+    },
+    "lesson_en": {
+        "hf_id": "xriminact/brightai_edge_lesson_plan_dataset", "split": "train",
+        "scenario_id": 20,
+        "instruction": "시나리오[20]: 성취 기준과 주제로 도입-전개-정리 단계별 수업 지도안을 설계하세요.",
+        "map": lambda r: (r.get("user", ""), r.get("output", "")),
+        "license": "확인필요", "rows": 4358, "lang": "en",
+        "note": "시나리오 20(수업 지도안) — user/output(JSON 지도안)",
+    },
+    "motivation_en": {
+        "hf_id": "to-be/annomi-motivational-interviewing-therapy-conversations", "split": "train",
+        "scenario_id": 14,
+        "instruction": "시나리오[14]: 동기부여 면담 기법으로 변화 동기를 끌어내고 작은 실천 목표를 제안하세요.",
+        "map": lambda r: _from_conversations(r.get("conversations", [])),
+        "license": "OpenRAIL", "rows": 133, "lang": "en",
+        "note": "시나리오 14(동기/목표) — motivational interviewing 대화 (소규모)",
     },
 }
 
@@ -180,7 +214,7 @@ def main():
         print("📚 추천 데이터셋 (HuggingFace Hub)\n")
         for k, c in SOURCES.items():
             print(f"  [{k}] {c['hf_id']}")
-            print(f"      시나리오 {c['scenario_id']} | {c['rows']:,}행 | {c['license']}")
+            print(f"      시나리오 {c['scenario_id']} | {c['rows']:,}행 | {c['license']} | lang={c.get('lang','ko')}")
             print(f"      → {c['note']}\n")
         return
 
