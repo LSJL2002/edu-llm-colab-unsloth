@@ -2,7 +2,14 @@
 __pycache__/
 *.py[cod]
 .venv/
+.venv-test/
 venv/
+
+# HF에서 생성되는 학습 데이터 (scripts/fetch_hf_datasets.py 로 재생성 가능)
+data/hf_train.jsonl
+data/hf_val.jsonl
+data/train.jsonl
+data/val.jsonl
 
 # 학습 산출물
 outputs/

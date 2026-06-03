@@ -49,20 +49,42 @@ yonsei-colab-studio/
 
 ---
 
-## 🧪 데이터 작업 (로컬)
+## 📥 학습 데이터 — HuggingFace Hub에서 (권장)
+
+손으로 만든 예시(`seed_train.jsonl`)는 **시나리오별 목표 톤 참고용**일 뿐, 실제 파인튜닝에는
+HuggingFace Hub의 **실제 한국어 교육 데이터셋**을 받아 씁니다.
 
 ```bash
-# 시드 데이터 검증 + 시나리오 분포 통계 + train/val 분할
-python scripts/prepare_dataset.py --input data/seed_train.jsonl --out-dir data --val-ratio 0.1
+pip install datasets
+# 소스별 8000개씩 streaming 추출 → data/hf_train.jsonl 생성
+python scripts/fetch_hf_datasets.py --per-source 8000 --val-ratio 0.05
+python scripts/fetch_hf_datasets.py --list            # 추천 목록만 보기
+python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 ```
 
-데이터 포맷 (JSONL 한 줄):
+### 추천 데이터셋 (시나리오 매핑)
+
+| 소스 키 | HF 데이터셋 | 행수 | 라이선스 | 매핑 시나리오 |
+|---------|-------------|------|----------|---------------|
+| `general` | [beomi/KoAlpaca-v1.1a](https://huggingface.co/datasets/beomi/KoAlpaca-v1.1a) | 21k | CC-BY-NC-4.0(추정) | 0 · 일반 instruction 베이스 |
+| `socratic` | [JosephLee/korean-socratic-qa](https://huggingface.co/datasets/JosephLee/korean-socratic-qa) | **105k** | 확인필요 | 1 · 소크라테스 문답 |
+| `math` | [kuotient/orca-math-word-problems-193k-korean](https://huggingface.co/datasets/kuotient/orca-math-word-problems-193k-korean) | **193k** | CC-BY-SA-4.0 | 6 · 수학 단계 풀이 |
+| `empathy` | [jojo0217/korean_safe_conversation](https://huggingface.co/datasets/jojo0217/korean_safe_conversation) | 27k | **Apache-2.0** | 11·12·15 · 정서지원 |
+| `edu` | [neuralfoundry-coder/aihub-korean-education-instruct-sample](https://huggingface.co/datasets/neuralfoundry-coder/aihub-korean-education-instruct-sample) | 6k | CC-BY-NC-SA-4.0 | 2·16·17 · 교육 상담·분석 |
+
+> ⚠️ **라이선스**: 상업적 사용 시 `empathy`(Apache-2.0)가 가장 자유롭습니다. KoAlpaca/AI Hub 계열은
+> 비상업(NC) 조건이 있을 수 있으니 배포 전 각 데이터셋 카드를 확인하세요. 연구·교육 목적 파인튜닝엔 무방합니다.
+
+### 통합 데이터 포맷 (JSONL 한 줄)
 ```json
-{"scenario_id": 1, "instruction": "시나리오[1]: 소크라테스식 문답법으로...", "input": "학생 질문", "output": "튜터 답변"}
+{"scenario_id": 1, "instruction": "시나리오[1]: 소크라테스식 문답법으로...", "input": "학생 질문", "output": "튜터 답변", "source": "JosephLee/korean-socratic-qa"}
 ```
 - `instruction` → 시스템 프롬프트(시나리오 유형 명시) → 모델이 상황을 **구별**하는 핵심
-- `input` → 학생/사용자 발화
-- `output` → 모델이 학습할 이상적 답변
+- `input` → 학생/사용자 발화 · `output` → 학습할 이상적 답변
+
+### 아직 실제 데이터가 부족한 시나리오 (3·4·5·8·9·10·13·14·18·19·20)
+HF에 직결 데이터가 적은 시나리오입니다. `seed_train.jsonl`의 예시를 **few-shot 프롬프트**로 활용하거나,
+추후 합성 데이터 생성(LLM)으로 보강하세요. (다음 단계 후보)
 
 ---
 
