@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 학습 산출물
+outputs/
+lora_model/
+model_gguf/
+*.gguf
+*.safetensors
+
+# Colab / 시스템
+.ipynb_checkpoints/
+.DS_Store

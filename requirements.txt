@@ -1,0 +1,12 @@
+# 로컬 데이터 작업용 (scripts/*.py 는 표준 라이브러리만 사용하므로 사실상 불필요)
+# 파인튜닝 자체는 Colab 노트북에서 Unsloth가 설치합니다.
+
+# Colab 노트북이 설치하는 핵심 패키지 (참고용):
+#   unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git
+#   trl
+#   peft
+#   accelerate
+#   bitsandbytes
+#   datasets
+
+# 로컬에서 데이터셋 미리보기/검증만 한다면 추가 의존성 없음 (python 3.11+)
