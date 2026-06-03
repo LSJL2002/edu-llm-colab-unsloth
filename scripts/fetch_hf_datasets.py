@@ -126,6 +126,39 @@ SOURCES = {
         "license": "OpenRAIL", "rows": 133, "lang": "en",
         "note": "시나리오 14(동기/목표) — motivational interviewing 대화 (소규모)",
     },
+    # ── 교체된 시나리오(4·5·13·18)용 실제 데이터셋 ────────────────────────
+    "summary": {
+        "hf_id": "daekeun-ml/naver-news-summarization-ko", "split": "train",
+        "scenario_id": 4,
+        "instruction": "시나리오[4]: 긴 글의 핵심을 파악해 간결하고 정확하게 요약하세요.",
+        "map": lambda r: (r.get("document", ""), r.get("summary", "")),
+        "license": "Apache-2.0", "rows": 27400, "lang": "ko",
+        "note": "시나리오 4(요약·핵심정리) — document/summary",
+    },
+    "reading": {
+        "hf_id": "klue/klue", "config": "mrc", "split": "train",
+        "scenario_id": 5,
+        "instruction": "시나리오[5]: 주어진 지문을 근거로 질문에 정확히 답하세요. 지문에 없는 내용은 지어내지 않습니다.",
+        "map": lambda r: _from_klue_mrc(r),
+        "license": "CC-BY-SA-4.0", "rows": 23395, "lang": "ko",
+        "note": "시나리오 5(독해 질의응답) — context+question/answers",
+    },
+    "code": {
+        "hf_id": "m-a-p/CodeFeedback-Filtered-Instruction", "split": "train",
+        "scenario_id": 13,
+        "instruction": "시나리오[13]: 코딩 요청에 동작하는 코드와 명확한 설명을 제공하세요.",
+        "map": lambda r: (r.get("query", ""), r.get("answer", "")),
+        "license": "Apache-2.0", "rows": 156526, "lang": "en",
+        "note": "시나리오 13(코딩 실습·피드백) — query/answer",
+    },
+    "writing": {
+        "hf_id": "coastral/korean-writing-style-instruct", "split": "train",
+        "scenario_id": 18,
+        "instruction": "시나리오[18]: 요청한 문체/형식/목적에 맞춰 글을 작성하거나 다듬어 주세요.",
+        "map": lambda r: _from_sharegpt(r.get("conversations", [])),
+        "license": "Apache-2.0", "rows": 28978, "lang": "ko",
+        "note": "시나리오 18(글쓰기 스타일 지도) — conversations(from/value)",
+    },
 }
 
 
@@ -147,6 +180,32 @@ def _from_roleplay(text):
     if isinstance(convo, list):
         return _from_conversations(convo)
     return "", ""
+
+
+def _from_sharegpt(convo):
+    """ShareGPT 포맷 [{from,value}...] → (human, gpt)."""
+    if isinstance(convo, str):
+        try:
+            convo = json.loads(convo)
+        except Exception:
+            return "", ""
+    if not isinstance(convo, list):
+        return "", ""
+    human = next((m.get("value", "") for m in convo if m.get("from") in ("human", "user")), "")
+    gpt = next((m.get("value", "") for m in convo if m.get("from") in ("gpt", "assistant")), "")
+    return human, gpt
+
+
+def _from_klue_mrc(r):
+    """KLUE-MRC → (지문+질문, 첫 정답). 정답 없으면 ('','')→자동 제외."""
+    ans = r.get("answers") or {}
+    texts = ans.get("text") if isinstance(ans, dict) else None
+    answer = (texts[0] if texts else "").strip()
+    if not answer:
+        return "", ""
+    ctx = (r.get("context") or "").strip()
+    q = (r.get("question") or "").strip()
+    return f"[지문]\n{ctx}\n\n[질문] {q}", answer
 
 
 _KMMLU_LETTERS = {1: "A", 2: "B", 3: "C", 4: "D"}

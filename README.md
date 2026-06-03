@@ -86,6 +86,16 @@ python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 | `lesson_en` | [xriminact/brightai_edge_lesson_plan_dataset](https://huggingface.co/datasets/xriminact/brightai_edge_lesson_plan_dataset) | 4k | 확인필요 | 20 · 수업 지도안 |
 | `motivation_en` | [to-be/annomi-motivational-interviewing-therapy-conversations](https://huggingface.co/datasets/to-be/annomi-motivational-interviewing-therapy-conversations) | 133 | OpenRAIL | 14 · 동기/목표 |
 
+### 교체된 시나리오 (4·5·13·18 — 데이터 없는 주제를 데이터 풍부한 주제로 변경)
+데이터가 없던 4개 시나리오를 **실제 데이터셋이 풍부한 주제로 교체**했습니다. (`scenarios.json` 반영)
+
+| 소스 키 | HF 데이터셋 | 행수 | 라이선스 | 교체 시나리오 |
+|---------|-------------|------|----------|---------------|
+| `summary` | [daekeun-ml/naver-news-summarization-ko](https://huggingface.co/datasets/daekeun-ml/naver-news-summarization-ko) | 27k | **Apache-2.0** | 4 · 지문 요약·핵심정리 *(← 난이도조절)* |
+| `reading` | [klue/klue (mrc)](https://huggingface.co/datasets/klue/klue) | 23k | CC-BY-SA-4.0 | 5 · 지문 독해 질의응답 *(← 개념연결)* |
+| `code` | [m-a-p/CodeFeedback-Filtered-Instruction](https://huggingface.co/datasets/m-a-p/CodeFeedback-Filtered-Instruction) | 157k | **Apache-2.0** | 13 · 코딩 실습·피드백 *(← 게이미피케이션)* |
+| `writing` | [coastral/korean-writing-style-instruct](https://huggingface.co/datasets/coastral/korean-writing-style-instruct) | 29k | **Apache-2.0** | 18 · 글쓰기 스타일 지도 *(← 학부모 문체변환)* |
+
 > ⚠️ **라이선스**: 상업적 사용 시 `empathy`(Apache-2.0)가 가장 자유롭습니다. KoAlpaca/AI Hub 계열은
 > 비상업(NC) 조건이 있을 수 있으니 배포 전 각 데이터셋 카드를 확인하세요. 연구·교육 목적 파인튜닝엔 무방합니다.
 
@@ -97,10 +107,10 @@ python scripts/fetch_hf_datasets.py --only socratic math   # 일부 소스만
 - `input` → 학생/사용자 발화 · `output` → 학습할 이상적 답변
 
 ### 커버리지 현황 (HF 검색 기반 — 합성 데이터 미사용)
-- **커버됨 (한국어)**: 0 · 1 · 2 · 3 · 6 · 9 · 11 · 12 · 15 · 16 · 17 · 19
-- **커버됨 (영어 보강)**: 8 · 10 · 14 · 20
-- **여전히 미확보**: 4(난이도조절) · 5(개념연결) · 13(게이미피케이션) · 18(학부모 문체변환)
-  - 한/영 모두 직결 공개 데이터셋이 검색되지 않는 영역입니다. `seed_train.jsonl` 예시를 **few-shot 프롬프트**로만 활용하세요.
+- **✅ 20개 시나리오 전부 실제 데이터셋 확보** (4·5·13·18은 데이터 풍부한 주제로 교체)
+- **한국어**: 0 · 1 · 2 · 3 · 4 · 5 · 6 · 9 · 11 · 12 · 15 · 16 · 17 · 18 · 19
+- **영어 보강**: 8 · 10 · 13 · 14 · 20
+- 교체로 빠진 원래 주제(난이도조절·개념연결·게이미피케이션·학부모 문체변환)는 공개 데이터가 없어, 필요 시 `seed_train.jsonl` few-shot으로만 활용하세요.
 
 #### 참고 데이터셋 (학습 레지스트리 미포함)
 - [Eedi/Question-Anchored-Tutoring-Dialogues-2k](https://huggingface.co/datasets/Eedi/Question-Anchored-Tutoring-Dialogues-2k) (69k, CC-BY-NC-4.0) — 시나리오 4(적응형 튜터링) 후보. 턴 단위 행이라 InterventionId로 학생→교사 턴 페어링 전처리 필요(미연동).
